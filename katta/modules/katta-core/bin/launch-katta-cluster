@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export SGE_KEEP_TMPFILES=no
+
 command -v prun >/dev/null 2>&1 || { echo >&2 "I require prun but it's not loaded. Load it first using 'module load prun'. Aborting."; exit 1; }
 
 if [ "$KATTA_HOME" = "" ]; then
@@ -39,7 +41,6 @@ nodespid=$KATTA_PID_DIR/katta-$KATTA_IDENT_STRING-das-nodes.pid
 zklog=$KATTA_LOG_DIR/katta-das-zk-$HOSTNAME.out
 masterlog=$KATTA_LOG_DIR/katta-das-master-$HOSTNAME.out
 nodeslog=$KATTA_LOG_DIR/katta-das-nodes-$HOSTNAME.out
-
 
 mkdir -p "$KATTA_PID_DIR"
 
@@ -84,9 +85,7 @@ mv "$KATTA_CONF_DIR"/katta.node.properties "$KATTA_CONF_DIR"/katta.node.properti
 cat "$KATTA_CONF_DIR"/katta.node.properties.old | grep -v "node.shard.folder=" | grep -v "#Added by katta-das" > "$KATTA_CONF_DIR"/katta.node.properties
 
 echo "# Added by katta-das" >> "$KATTA_CONF_DIR"/katta.node.properties
-echo "node.shard.folder=/tmp/$USER/katta-shards" >> "$KATTA_CONF_DIR"/katta.node.properties
-
-
+echo "node.shard.folder=/local/$USER/tmp/katta-shards" >> "$KATTA_CONF_DIR"/katta.node.properties
 
 
 if [ -f "$masterpid" ]; then
@@ -114,13 +113,15 @@ if [ -f "$nodespid" ]; then
     echo "Nodes already running. Skipping."
   else
     echo "logging nodes to $nodeslog"
-    nohup prun -1 -np $1 ./katta startNode --config "$KATTA_CONF_DIR" > "$nodeslog" 2>&1 < /dev/null &
+    ##nohup prun -1 -np $1 ./katta startNode --config "$KATTA_CONF_DIR" > "$nodeslog" 2>&1 < /dev/null &
+    nohup prun -1 -np $1 ./start-katta-node > "$nodeslog" 2>&1 < /dev/null &
     echo $! > "$nodespid"
     sleep 1; head "$nodeslog"
   fi
 else
   echo "logging nodes to $nodeslog"
-  nohup prun -1 -np $1 ./katta startNode --config "$KATTA_CONF_DIR" > "$nodeslog" 2>&1 < /dev/null &
+  ##nohup prun -1 -np $1 ./katta startNode --config "$KATTA_CONF_DIR" > "$nodeslog" 2>&1 < /dev/null &
+  nohup prun -1 -np $1 ./start-katta-node > "$nodeslog" 2>&1 < /dev/null &
   echo $! > "$nodespid"
   sleep 1; head "$nodeslog"
 fi

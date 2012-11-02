@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Removing old shards..."
+rm -rf /local/$USER/tmp/katta-shards
+"$KATTA_HOME"/bin/katta --config "$KATTA_CONF_DIR" startNode
