@@ -1,0 +1,3 @@
+#!/bin/bash
+echo $HOSTNAME > "$KATTA_LOG_DIR"/katta-das-zk.host
+"$KATTA_HOME"/bin/katta --config "$KATTA_CONF_DIR" startZK

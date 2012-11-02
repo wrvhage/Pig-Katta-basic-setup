@@ -1,0 +1,158 @@
+<project name="katta" default="test">
+
+	<property name="root.dir" value="${basedir}" />
+	<!-- all standard ant tasks are in the common build file-->
+	<import file="${root.dir}/src/build/ant/common-build.xml" />
+	
+	<condition property="halt.on.failure" value="true">
+		<not><isset property="halt.on.failure"/></not>
+	</condition>
+
+	<path id="core-modules">
+        <pathelement path="modules/katta-core" />
+		<pathelement path="modules/katta-indexing-sample" />
+    </path>
+	
+	<path id="modules">
+        <path refid="core-modules"/>
+    </path>
+	
+	<path id="build.classpath">
+        <fileset dir="${root.dir}/${lib.dir}/build">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+	
+	<!-- ================================================================== -->
+	<!-- General cleaning sources                                           -->
+	<!-- ================================================================== -->
+	<target name="clean" description="--> clean the project">
+		<echo>cleaning ${ant.project.name}</echo>
+        <delete dir="${build.dir}" includeemptydirs="true" excludes="dist/" failonerror="false" />
+		<subant buildpathref="modules" target="clean" />
+		<delete file="log.log" />
+	</target>
+	
+	<target name="clean-all" description="--> clean the project (including eclipse build directories)">
+		<delete includeemptydirs="true" dir="${build.dir}" failonerror="false" />
+		<subant buildpathref="modules" target="clean-all"/>
+	</target>
+
+	<target name="clean-classes" description="--> cleans classes of project">
+		<subant buildpathref="modules" target="clean-classes"/>
+	</target>
+	
+	
+	<!-- ================================================================== -->
+	<!-- Build jar from sources                                               -->
+	<!-- ================================================================== -->
+	<target name="jar">
+		<subant buildpathref="core-modules" target="jar" description="--> create jars" />
+	</target>
+	
+	<target name="jar-sources">
+		<subant buildpathref="core-modules" target="jar-sources" description="--> create source-jars" />
+	</target>
+
+
+	<target name="unit-jar" depends="jar">
+		<subant buildpathref="core-modules" target="unit-jar" />
+	</target>
+	
+	<target name="it-jar" depends="unit-jar">
+		<subant buildpathref="core-modules" target="it-jar" />
+	</target>
+	
+
+	<!-- ================================================================== -->
+	<!-- Java Doc                                                           -->
+	<!-- ================================================================== -->
+	<target name="doc" description="--> create javadoc">
+		<subant failonerror="true" buildpathref="modules" target="doc"/>
+	</target>
+
+
+	<!-- ================================================================== -->
+	<!-- Generating eclipse file                                            -->
+	<!-- ================================================================== -->
+	<target name="eclipse" description="--> create the Eclipse project files">
+        <taskdef name="eclipse" classname="prantl.ant.eclipse.EclipseTask" classpathref="build.classpath" />
+        <mkdir dir="${build.dir.main-classes-eclipse}" />
+        <eclipse updatealways="true">
+            <settings>
+                <resources encoding="UTF-8" />
+            </settings>
+            <project name="${ant.project.name}" />
+			<classpath>
+				<source path="." excluding="**" output="${build.dir.test-classes}" />
+				<output path="${build.dir.main-classes}" />
+			</classpath>
+        </eclipse>
+
+	    <subant buildpathref="modules" target="eclipse"/>
+	</target>
+
+	<target name="clean-eclipse" description="--> clean the Eclipse project files">
+        <delete file=".classpath" />
+        <delete file=".eclipse" />
+        <delete file=".project" />
+        <delete dir=".settings" />
+		<subant buildpathref="modules" target="clean-eclipse"/>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- RUN TESTS		                                                    -->
+	<!-- ================================================================== -->
+	<target name="unit" depends="unit-jar" description="--> run core unit tests">
+		<subant buildpathref="core-modules" target="unit" failonerror="${halt.on.failure}">
+			<property name="halt.on.failure" value="${halt.on.failure}" />
+		</subant>
+	</target>
+
+	<target name="it" depends="it-jar" description="--> run integration tests">
+		<subant buildpathref="core-modules" target="it" failonerror="${halt.on.failure}">
+			<property name="halt.on.failure" value="${halt.on.failure}" />
+		</subant>
+	</target>
+	
+	<target name="test" depends="unit, it" description="--> run unit &amp; integration tests" />
+	
+	<target name="show-report" description="--> print a junit test report to the terminal">
+		<fail unless="class" message="have to specify test class like &quot;ant cat-report -Dclass=MasterQueueTest&quot;"/>
+		
+		<fileset dir="modules/" id="testReport" >
+			<include name="**/TEST-*${class}.xml"/>
+		</fileset>
+		<property name="foundTestReport" refid="testReport"/>
+		<echo message="Found ${foundTestReport} for class ${class}"/>
+		<loadfile property="reportContent" srcFile="modules/${foundTestReport}"/>
+		<echo message="Content:"/>
+		<echo message="${reportContent}"/>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Distribution                                            -->
+	<!-- ================================================================== -->
+	<target name="dist" depends="" description="--> Generates distribution.">
+		<subant buildpath="modules/katta-core" target="dist" >
+		</subant>
+	</target>
+	
+	<target name="indexing-job-jar" depends="" description="--> Generates job-jar for the indexing sample.">
+		<subant buildpath="modules/katta-indexing-sample" target="job-jar" >
+		</subant>
+	</target>
+	
+	<!-- ================================================================== -->
+	<!-- Coverage                                            -->
+	<!-- ================================================================== -->
+	<target name="report" depends="jar, unit-jar, it-jar" description="--> Generates reports.">
+		<subant buildpathref="modules" target="coverage"/>
+	</target>
+	
+	<target name="coverage" depends="unit-jar" description="--> run core unit tests">
+		<subant buildpathref="core-modules" target="coverage">
+		</subant>
+	</target>
+
+</project>

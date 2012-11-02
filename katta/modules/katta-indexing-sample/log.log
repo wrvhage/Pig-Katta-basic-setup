@@ -1,0 +1,2 @@
+ WARN [2012-10-31 10:02:15] (JobClient.java:539) - Use GenericOptionsParser for parsing the arguments. Applications should implement Tool for the same.
+ WARN [2012-10-31 10:02:15] (JobClient.java:661) - No job jar file set.  User classes may not be found. See JobConf(Class) or JobConf#setJar(String).

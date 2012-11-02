@@ -1,0 +1,281 @@
+<project name="common-build" >
+
+	<property file="${root.dir}/src/build/ant/build.properties" />
+	<import file="build-all.xml" />
+	<property name="modules-classes.dir" value="${root.dir}/${build.dir}/modules-classes"/>
+	
+    <path id="compile.classpath" />
+    <path id="test.classpath" />
+    <path id="build.classpath" />
+    <path id="artifact.classpath" />
+    <path id="artifact.test.classpath" />
+    <path id="artifact.it.classpath" />
+    <mkdir dir="${lib.dir}/build" />
+    <mkdir dir="${lib.dir}/test" />
+    <mkdir dir="${lib.dir}/compile" />
+    <mkdir dir="${main.src.dir}" />
+    <mkdir dir="${test.src.dir}" />
+    <mkdir dir="${it.src.dir}" />
+    <mkdir dir="${main.res.dir}" />
+    <mkdir dir="${test.res.dir}" />
+    <mkdir dir="${it.res.dir}" />
+    <mkdir dir="${modules-classes.dir}" />
+
+    <!-- ================================================================== -->
+    <!-- Classpath 				                                           -->
+    <!-- ================================================================== -->
+    <macrodef name="addModuleToClasspath">
+        <attribute name="module" />
+        <sequential>
+        	<echo>building classpathes for module @{module}...</echo>
+            <pathconvert property="compile.classpath.prop-@{module}" refid="compile.classpath" />
+            <path id="compile.classpath">
+                <pathelement path="${compile.classpath.prop-@{module}}" />
+                <fileset dir="${root.dir}/modules/@{module}/${lib.dir}/compile" followsymlinks="true">
+                    <include name="**/*.jar" />
+                    <exclude name="**/*-sources.jar" />
+                </fileset>
+            </path>
+            
+            <pathconvert property="test.classpath.prop-@{module}" refid="test.classpath" />
+            <path id="test.classpath">
+                <pathelement path="${test.classpath.prop-@{module}}" />
+                <fileset dir="${root.dir}/modules/@{module}/${lib.dir}/test">
+                    <include name="**/*.jar" />
+                    <exclude name="**/*-sources.jar" />
+                </fileset>
+            </path>
+
+            <pathconvert property="build.classpath.prop-@{module}" refid="build.classpath" />
+            <path id="build.classpath">
+                <pathelement path="${build.classpath.prop-@{module}}" />
+                <fileset dir="${root.dir}/modules/@{module}/${lib.dir}/build">
+                    <include name="**/*.jar" />
+                    <exclude name="**/*-sources.jar" />
+                </fileset>
+            	<fileset dir="${root.dir}/${lib.dir}/build">
+    	            <include name="**/*.jar" />
+    	            <exclude name="**/*-sources.jar" />
+    	        </fileset>
+            </path>
+        	<!--<echo-classpath classpathId="build.classpath"/>-->
+        </sequential>
+    </macrodef>
+
+    <macrodef name="addScopedModuleArtifact">
+        <attribute name="module" />
+        <attribute name="scope" />
+        <sequential>
+            <pathconvert property="artifact.@{scope}.classpath.prop-@{module}" refid="artifact.@{scope}.classpath" />
+            <path id="artifact.@{scope}.classpath">
+                <pathelement path="${artifact.@{scope}.classpath.prop-@{module}}" />
+                <fileset dir="${root.dir}/modules/@{module}/${artifact.dir}">
+                    <include name="@{module}-${version}-@{scope}.jar" />
+                </fileset>
+            </path>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="addModuleArtifact">
+        <attribute name="module" />
+        <sequential>
+            <pathconvert property="artifact.classpath.prop-@{module}" refid="artifact.classpath" />
+            <path id="artifact.classpath">
+                <pathelement path="${artifact.classpath.prop-@{module}}" />
+                <fileset dir="${root.dir}/modules/@{module}/${artifact.dir}">
+                    <include name="@{module}-${version}.jar" />
+                </fileset>
+            </path>
+
+            <addScopedModuleArtifact scope="test" module="@{module}"/>
+            <addScopedModuleArtifact scope="it" module="@{module}"/>
+        </sequential>
+    </macrodef>
+	
+	<macrodef name="collectLibraries">
+        <attribute name="module" />
+        <attribute name="target-dir" />
+        <sequential>
+            <delete dir="@{target-dir}" />
+            <copy flatten="true" todir="@{target-dir}">
+                <!-- OWN CLASSPATH -->
+                <path refid="compile.classpath" />
+                <path refid="artifact.classpath" />
+            </copy>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="compileTests">
+        <attribute name="testClasses" />
+        <attribute name="srcDir" />
+        <attribute name="resDir" />
+        <attribute name="artifactClasspath" />
+        <sequential>
+            <echo>*** Building Test Sources for ${ant.project.name} ***</echo>
+            <mkdir dir="@{testClasses}" />
+
+            <javac encoding="${build.encoding}" srcdir="@{srcDir}" includes="**/*.java" destdir="@{testClasses}" debug="${javac.debug}" optimize="${javac.optimize}" target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}" includeantruntime="false">
+                <compilerarg line="${javac.args} ${javac.args.warnings}" />
+                <classpath refid="@{artifactClasspath}" />
+                <classpath refid="artifact.classpath" />
+                <classpath refid="compile.classpath" />
+                <classpath refid="test.classpath" />
+                <classpath location="${build.dir.main-classes}" />
+            </javac>
+            <copy todir="@{testClasses}">
+                <fileset dir="@{resDir}"/>
+            </copy>
+	    </sequential>
+    </macrodef>
+
+    <!-- ================================================================== -->
+    <!-- Build sources                                                      -->
+    <!-- ================================================================== -->
+    <target name="compile" depends="setupModuleArtifactClassPath">
+    	<echo>*** ${ant.project.name} ***</echo>
+        <mkdir dir="${build.dir.main-classes}" />
+        <javac encoding="${build.encoding}" includes="**/*.java" destdir="${build.dir.main-classes}" debug="${javac.debug}" optimize="${javac.optimize}" target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}" includeantruntime="false">
+            <src path="${main.src.dir}" />
+            <compilerarg line="${javac.args} ${javac.args.warnings}" />
+            <classpath refid="compile.classpath" />
+            <classpath refid="artifact.classpath" />
+        </javac>
+        <copy todir="${build.dir.main-classes}">
+            <fileset dir="${main.res.dir}"/>
+        </copy>
+    </target>
+	
+    <!-- ================================================================== -->
+    <!-- Unit Tests                                                         -->
+    <!-- ================================================================== -->
+
+    <target name="compile-unit" depends="setupModuleArtifactClassPath">
+        <compileTests artifactclasspath="artifact.test.classpath" srcdir="${test.src.dir}" resdir="${test.res.dir}" testclasses="${build.dir.test-classes}" />
+    </target>
+
+    <target name="compile-it" depends="setupModuleArtifactClassPath">
+        <path id="artifact.it.classpath.complete">
+            <path refid="artifact.test.classpath" />
+            <path refid="artifact.it.classpath" />
+            <fileset dir="${root.dir}/modules/${ant.project.name}/${artifact.dir}">
+                <include name="${ant.project.name}-${version}-test.jar" />
+            </fileset>
+        </path>
+
+        <compileTests artifactclasspath="artifact.it.classpath.complete" srcdir="${it.src.dir}" resdir="${it.res.dir}" testclasses="${build.dir.it-classes}" />
+    </target>
+
+    <target name="it" depends="compile-it">
+    	<!--  forkmode="perTest/once"-->
+        <runTests srcdir="${it.src.dir}" forkmode="${test.it.forkmode}" testClasses="${build.dir.it-classes}" testReports="${build.dir.it-reports}" haltOnFailure="${halt.on.failure}">
+			<extraClasspaths>
+    			<path refId="artifact.it.classpath.complete" />
+    		</extraClasspaths>
+    	</runTests>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- Java Doc                                                           -->
+    <!-- ================================================================== -->
+
+    <target name="doc" depends="compile">
+        <echo>Build doc for ${ant.project.name}</echo>
+        <mkdir dir="${build.javadoc}" />
+        <javadoc failonerror="true" packagenames="${javadoc.package}" destdir="${build.javadoc}" author="true" version="true" use="true" windowtitle="${name} ${version} API" doctitle="${name} ${version} API" bottom="Copyright &amp;copy; ${javadoc.year} 101tec Inc.">
+            <fileset dir="${main.src.dir}">
+            	<include name="**/*.java" />
+            </fileset>
+            <link href="${javadoc.link.java}" />
+            <classpath>
+                <path refid="compile.classpath" />
+            	<path refid="artifact.classpath" />
+            	<path refid="artifact.it.classpath" />
+            	<path>
+            		<pathelement location="${artifact.dir}/${ant.project.name}-${version}.jar"/>
+            	</path>
+            </classpath>
+            <group title="${javadoc.title}" packages="${javadoc.package}*" />
+        </javadoc>
+    </target>
+	
+    <!-- ================================================================== -->
+    <!-- Build jar of sources                                               -->
+    <!-- ================================================================== -->
+
+	<target name="setupModuleArtifactClassPath" />
+    
+	<target name="jar" depends="compile">
+        <buildJar jarname="${jar.name}" mainclasses="${build.dir.main-classes}" />
+    </target>
+	
+	<target name="jar-sources" depends="compile">
+        <buildJar jarname="${jar.sources.name}" mainclasses="${main.src.dir}" />
+    </target>
+	
+    <target name="unit-jar" depends="compile-unit">
+        <buildJar jarname="${jar.test.name}" mainclasses="${build.dir.test-classes}" />
+    </target>
+
+    <target name="it-jar" depends="compile-it">
+        <buildJar jarname="${jar.it.name}" mainclasses="${build.dir.it-classes}" />
+    </target>
+
+    <target name="unit" depends="setupModuleArtifactClassPath">
+        <runTests srcdir="${test.src.dir}" forkmode="once" testClasses="${build.dir.test-classes}" testReports="${build.dir.test-reports}" haltOnFailure="${halt.on.failure}">
+			<extraClasspaths>
+    			<path refId="artifact.test.classpath" />
+    		</extraClasspaths>
+    	</runTests>
+    </target>
+
+	
+	<!-- ================================================================== -->
+	<!-- Cobertura Section                                                  -->
+	<!-- ================================================================== -->
+
+	<target name="instrument" depends="compile,setupModuleArtifactClassPath">
+		<echo>*** ${ant.project.name} ***</echo>
+		<echo>${basedir}/${build.dir.main-classes}</echo>
+		<taskdef classpathref="build.classpath" resource="tasks.properties" />
+		<delete file="${reports.dir}/dap.ser" />
+		<delete dir="${instrumented.dir}" />
+		<cobertura-instrument datafile="${reports.dir}/dap.ser" todir="${instrumented.dir}">
+			<!--
+						The following line causes instrument to ignore any
+						source line containing a reference to log4j, for the
+						purposes of coverage reporting.
+					-->
+			<ignore regex="org.apache.log4j.*" />
+			<fileset dir="${build.dir.main-classes}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<target name="coverage-report">
+		<cobertura-report datafile="${reports.dir}/dap.ser" srcdir="${main.src.dir}" destdir="${coverage.html.dir}" />
+	</target>
+
+	<target name="coverage" depends="compile,instrument,unit,it,coverage-report" />
+
+	
+	<target name="checkstyle">
+		<mkdir dir="${reports.dir}"/>
+		<taskdef resource="checkstyletask.properties" classpathref="build.classpath" />
+		<checkstyle config="${root.dir}/${build.src.dir}/checkstyle/checkstyle.xml" failOnViolation="false">
+			<fileset dir="${main.src.dir}" includes="**/*.java" />
+			<fileset dir="${test.src.dir}" includes="**/*.java" />
+			<formatter type="plain" />
+			<formatter type="xml" toFile="${reports.dir}/checkstyle_report.xml" />
+		</checkstyle>
+		<mkdir dir="${checkstyle.html.dir}"/>
+		<xslt style="${root.dir}/${build.src.dir}/checkstyle/checkstyle-noframes.xsl"
+		        in="${reports.dir}/checkstyle_report.xml"
+		        out="${checkstyle.html.dir}/checkstyle_report.html"
+				basedir="${checkstyle.html.dir}" destdir="${checkstyle.html.dir}">
+		</xslt>
+	</target>
+
+
+</project>

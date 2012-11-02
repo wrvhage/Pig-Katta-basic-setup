@@ -1,0 +1,52 @@
+#!/bin/bash
+
+
+if [ "$KATTA_PID_DIR" = "" ]; then
+  KATTA_PID_DIR=/tmp
+fi
+
+if [ "$KATTA_IDENT_STRING" = "" ]; then
+  export KATTA_IDENT_STRING="$USER"
+fi
+
+zkpid=$KATTA_PID_DIR/katta-$KATTA_IDENT_STRING-das-zk.pid
+masterpid=$KATTA_PID_DIR/katta-$KATTA_IDENT_STRING-das-master.pid
+nodespid=$KATTA_PID_DIR/katta-$KATTA_IDENT_STRING-das-nodes.pid
+
+    if [ -f "$nodespid" ]; then
+      if kill -0 `cat "$nodespid"` > /dev/null 2>&1; then
+        echo stopping nodes
+        kill `cat "$nodespid"`
+      else
+        echo No nodes to stop
+      fi
+    else
+      echo No nodes to stop
+    fi
+
+sleep 3
+
+    if [ -f "$masterpid" ]; then
+      if kill -0 `cat "$masterpid"` > /dev/null 2>&1; then
+        echo stopping master
+        kill `cat "$masterpid"`
+      else
+        echo No master to stop
+      fi
+    else
+      echo No master to stop
+    fi
+
+sleep 3
+
+    if [ -f "$zkpid" ]; then
+      if kill -0 `cat "$zkpid"` > /dev/null 2>&1; then
+        echo stopping zookeeper
+        kill `cat "$zkpid"`
+      else
+        echo No zookeeper to stop
+      fi
+    else
+      echo No zookeeper to stop
+    fi
+

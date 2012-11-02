@@ -1,0 +1,178 @@
+Katta Change Log
+
+katta 0.7.0
+ fix KATTA-211, Hits sort not deterministic
+ fix KATTA-194, Upgrade to lucene 3.5.0 (from 3.0.3)
+ fix KATTA-180, better shard-removal handling in client
+ fix KATTA-198, expose missed shards for query to Hits object
+ fix KATTA-205, close IndexSearcher only after all running searches completed
+ fix KATTA-204, Allow KattaMiniCluster to be used without depending on config files on the classpath 
+ fix KATTA-203, Lucene search fails if a deployed index has zero documents
+ fix KATTA-202, Client exceptions don't always get logged if they are caught after the result set is closed
+ fix KATTA-200, fix ShardManagerTest on fast computers
+ fix KATTA-199, drop katta gui groovy project
+ fix KATTA-195, simplify Katta build
+
+katta 0.6.5
+ fix KATTA-196, LuceneServer leaks memory when using query filters
+ fix KATTA-193, implement query filters 
+
+katta 0.6.4
+ fix KATTA-186, make message about document and term statistics more readable
+ fix KATTA-189, improve multithreaded shard search by using ExecutorCompletionService 
+ fix KATTA-190, make inner classes of LuceneServer protected
+ fix KATTA-187, add additional parameters to the Katta client to change the output format for easier scripting and parsing
+ fix KATTA-192, make master failover more robust
+ fix KATTA-184, upgrade to zookeeper 3.3.2 (from 3.3.1)
+ fix KATTA-183, zkclient can get unresponsive through OOM
+ fix KATTA-182, fix memory leak in client - ZooKeeper$ZkWatchManager.existWatches can grow huge
+ fix KATTA-181, don't remove node-shard-mapping from client if proxy fails one time
+ fix KATTA-179, undeployment of index can lead to NPE in BooleanQuery - improve exception message
+ fix KATTA-178, undeploying indices can leave empty shard-to-node pathes
+ fix KATTA-177, IndexDeployFuture not safe for quick undeployments
+ fix KATTA-80,  add jar-test target to build which builds a jar of test classes
+ fix KATTA-175, make lucene-server thread pool parameters configurable
+ fix KATTA-171, use timeout from Client in the LuceneServer as well
+ fix KATTA-174, allow configuration of content-server through katta.node.properties
+ fix KATTA-173, upgrade to hadoop-0.20.2 (from 0.20.1)
+ fix KATTA-172, upgrade to lucene-3.0.3 (from 3.0.0)
+
+katta 0.6.3
+ fix KATTA-165, fix IndexOutOfBoundsException when adding index with enabled throttling
+ fix KATTA-161, fix deadlock situation when node gets disconnected from zk and so becomes unresponsive
+ fix KATTA-162, Allow LuceneClient to be extended more easily
+ fix KATTA-156, allow shard selection by regular expression
+ fix KATTA-163, don't exit node/master operation thread in case an unexpected exception occurs
+ fix KATTA-160, Stop trying to rebalance/replicate an index when the index could not be found in the file system any more
+ fix KATTA-134, cobertura.jar version mismatch when compiling /extras/indexing
+ fix KATTA-153, LuceneServer loads all fields from index, even if only fewer are requested
+ fix KATTA-157, set timeout on LuceneClient
+ fix KATTA-154, HitsMapWritable readFields does not add hits optimally
+ fix KATTA-152, modify LuceneServer for easier sub-classing
+ fix KATTA-159, LuceneServerTest does not compile
+ fix KATTA-150, port parameter for startNode command
+ fix KATTA-149, remove unnecessary synchronization from LuceneServer
+ fix KATTA-148, fix debug statement which prevent katta from running with debug log level
+ fix KATTA-147, upgrade to zookeeper 3.3.1
+
+katta 0.6.2
+ fix KATTA-146, fix ConcurrentModificationException when multiple LuceneClient objects are created simultaneously
+ fix KATTA-145, fix NullPointerException when a LuceneClient is created and an index is reomoved concurrently
+ fix KATTA-142, fix memory leak in client usage when adding and removing indices
+ fix KATTA-136, fix NPE in client on remove index event
+ fix KATTA-141, fix ec2 scripts
+ fix KATTA-128, set node RPC handler count from 1 to 25 and make it configurable
+ fix KATTA-130, fix unzipping, when parent dirs do not exists
+ fix KATTA-126,	some improvements in use of java generics
+ fix KATTA-140, fix search when number of documents exceeds Integer.MAX_VALUE
+ fix KATTA-135, fix NPE in AbstractIndexOperation.addRunningDeployments
+ fix KATTA-125, fix ConcurrentModificationException in net.sf.katta.protocol.InteractionProtocol
+
+katta 0.6.1
+ fix KATTA-122, removeIndex leaks file descriptors
+ fix KATTA-124, fix imbalanced shard distribution
+
+katta 0.6.0
+ fix KATTA-120, fix listIndices for wrong file pathes
+ fix KATTA-117, add command line option to print stacktrace on error
+ fix KATTA-116, fix distribution of shards does not take currently deploying shards into account
+ fix KATTA-107, fix katta execution on cygwin
+ fix KATTA-112, ship build.xml in core distribution
+ fix KATTA-110, use a released 0.1 version of zkclient instead of the snapshot
+
+katta 0.6.rc1
+ fix KATTA-109, split katta distribution into katta and katta.gui
+ fix KATTA-17,  load test for katta
+ fix KATTA-96,  upgrade mechanism for katta
+ fix KATTA-104,	upgrade to zookeeper 3.2.2
+ fix KATTA-105, throttle shard deployment
+ fix KATTA-103, upgrade to lucene 3.0
+ fix KATTA-82,  Katta need to be monitor able
+ fix KATTA-101, refactore INodeManaged implementation into sub-packages
+ fix KATTA-97,  gracefull shutdown of JmxMonitor
+ fix KATTA-102,	node failover in Client is not safe for multithreaded use
+ fix KATTA-95, 	IndexDeployFuture.joinDeployment() seems to hang from time to time
+ fix KATTA-43, 	Katta does not recover well from expired sessions
+ fix KATTA-100,	ivy setup does not work for extras/indexing module
+ fix KATTA-93, 	hits are (re-)sorted completely on client side
+ fix KATTA-78, 	Add basic Lucene Sort capabilities
+ fix KATTA-76, 	fix listIndexes in case unreachable indices are deployed
+ fix KATTA-81, 	NodeInteraction: configurable max-try-count
+ fix KATTA-54, 	Generalize Katta so that Lucene is one use case. Add MapFile implementation
+ fix KATTA-73, 	CDPATH environment variable causes bin scripts to fail.
+ fix KATTA-74, 	upgrading dependencies for extras/indexer
+ fix KATTA-55, 	adding /extras to the distribution
+ fix KATTA-75, 	tarbomb: Katta 0.5.1 release tarball expands in place
+ fix KATTA-80, 	Configuration loading from files from Jason Rutherglen
+ fix KATTA-56, 	fixing a comment refering to hadoop instead to katta
+ fix KATTA-86, 	sources should be in jar as well.
+ fix KATTA-77, 	removing indexer and merging code, since it is obsolete. Indexer sample code can be find in the extras/indexer folder. Instead of merging indexes we recommend to reindex the complete data set.
+ fix KATTA-84, 	adding decompressing during download without storing it on the hdd - from Jason Venner
+ fix KATTA-84, 	adding a LowestShardCountDistributionPolicy from Jason Venner
+ fix KATTA-87, 	adding a first version of the katta.gui
+ fix KATTA-85, 	upgrade to hadoop 0.20.1 jars
+ fix KATTA-57, 	Permissions on scripts are now set properly with execute flag set in .tar.gz file
+ fix KATTA-48, 	Index name is now included in IndexMetaData
+ fix KATTA-44, 	Cleaned up ordering of Hits in KattaHitQueue
+ fix KATTA-42, 	Moved to Zookeeper-3.2.1.
+ remove maven repos from ivy configuration and add last missing libraries into lib folder
+ fix KATTA-72, 	Give better error message when searching an index that doesn't exist.
+ fix KATTA-67, 	Default namespace is not created when using external Katta
+ fix KATTA-66, 	Update jets3t jar from version 0.5.0 to 0.6.1
+ fix KATTA-71, 	Katta hangs when deploying index from s3 since HADOOP-4422
+ fix KATTA-70, 	When using an external Zookeeper master and secondary master don't terminate straight away anymore.
+ fix KATTA-63, 	Use java found on the path, if JAVA_HOME is not set
+ fixing a missleading path in the katta-evn.sh
+  fix KATTA-14, Katta should be able to use an external zookeeper cluster.
+ fix KATTA-53, 	fix spelling errors and other small issues in code, contributed by Ted Dunning.
+ fix KATTA-47, 	anaylzer is not required anymore, contributed by Vivek Magotra.
+ fix KATTA-52, 	ZKClient.reconnect() should only be called on KeeperState.Expired events
+ fix KATTA-51, 	master hangs when reconnecting to zk during deployment of a index.
+ fix KATTA-46, 	constructor for client and DeployClient exposing zkClient configuration values, so no ZKConfiguration object is required.
+ fix KATTA-45, 	we might ignored hits with a higher score that are in later shards.
+ merged katta 0.5.1 into 0.6-dev
+ fix KATTA-41, 	SecondaryMaster cannot take over when firstMaster failed.
+ fix KATTA-39, 	logical bug in calculating the DF
+ fix KATTA-37 	(blocker), undeploy shard also deleted other shards
+ fix KATTA-38, 	endless loop in finding free rcp port
+ KATTA-17, 		Added first cut load testing code.
+ fix KATTA-36, 	bin/katta showStructure not throwing an exception anymore.
+ fix KATTA-35, 	Added missing target descriptions to build.xml.
+ fix KATTA-31, 	dont rsync log or zookeeper folders
+
+katta 0.5
+ fix KATTA-23, Parallize result detail retrieval
+ fix KATTA-2, use the correct analyzer for queries. I used the opportunity here to depreciate IQuery and Query and switched it to lucene Query.
+ It is now possible to use any kind of lucene query created programatically. If you using a string you can use the lucene QueryParser.
+ The depreciate still uses the hardcoded KeywordAnalyzer.
+ fix NPE in Node zookeeper reconnect in case the shardfolder was empty.
+ fix KATTA-4, shards are now searched in parallel with a thread pool, we still need to merge the results together though.
+ fix KATTA-27, Query parser not  thread-safe.
+ minor refactoring to make Node better testable without zookeeper.
+ fix KATTA-10, add port to used shard folder so it is possible to start multiple nodes on one server
+ fix KATTA-25, upgrading to zookeeper 3.1.1
+ fix KATTA-20, Hits is now thread safe, because it is used by multiple searchers that are running concurrently to collect their results
+   DocumentFrequenceWritable is now thread safe doc and term frequencies are always computed correctly
+ fix KATTA-24, update to lucene 2.4.1
+ fix KATTA-21
+ fix KATTA-22
+ SampleIndex generator uses hostname plus uuid for index name now.
+ Restructure build to support multi sub projects.
+ Adding coverage reports
+ switching to ant and ivy for build
+ upgrading to hadoop 0.19.
+ adding ec2 support
+ Release 0.4.0 - 2008-12-08
+
+ upgrade hadoop to 0.18.1
+ store full stacktrace of index-failures
+ add merging of indexes
+ respect node status 'STARTING' in SAFE_MODE
+ fix bug where node jvm exits on startup on an deployment error
+ check for indexes in deploying and replicating state on master startup
+ upgrade zookeeper version from 2.2.0 to 2.2.1
+
+Release 0.1.0 - 2008-10-17
+
+ 1. The first release of Katta.
+

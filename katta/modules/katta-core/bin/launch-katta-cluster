@@ -1,0 +1,127 @@
+#!/bin/bash
+
+command -v prun >/dev/null 2>&1 || { echo >&2 "I require prun but it's not loaded. Load it first using 'module load prun'. Aborting."; exit 1; }
+
+if [ "$KATTA_HOME" = "" ]; then
+  bindir=`dirname "$0"`
+  export KATTA_HOME=`readlink -f $bindir/..`
+fi
+
+
+
+command -v "$KATTA_HOME"/bin/katta >/dev/null 2>&1 || { echo >&2 "Unable to locate katta. Please put this script in your katta/modules/katta-core/bin directory. Aborting."; exit 1; }
+
+
+KATTA_CONF_DIR="${KATTA_CONF_DIR:-$KATTA_HOME/conf}"
+
+if [ "$KATTA_PID_DIR" = "" ]; then
+  KATTA_PID_DIR=/tmp
+fi
+
+if [ "$KATTA_IDENT_STRING" = "" ]; then
+  export KATTA_IDENT_STRING="$USER"
+fi
+
+if [ -f "${KATTA_CONF_DIR}/katta-env.sh" ]; then
+  . "${KATTA_CONF_DIR}/katta-env.sh"
+fi
+
+# get log directory
+if [ "$KATTA_LOG_DIR" = "" ]; then
+  export KATTA_LOG_DIR="$KATTA_HOME/logs"
+fi
+mkdir -p "$KATTA_LOG_DIR"
+
+zkpid=$KATTA_PID_DIR/katta-$KATTA_IDENT_STRING-das-zk.pid
+masterpid=$KATTA_PID_DIR/katta-$KATTA_IDENT_STRING-das-master.pid
+nodespid=$KATTA_PID_DIR/katta-$KATTA_IDENT_STRING-das-nodes.pid
+
+zklog=$KATTA_LOG_DIR/katta-das-zk-$HOSTNAME.out
+masterlog=$KATTA_LOG_DIR/katta-das-master-$HOSTNAME.out
+nodeslog=$KATTA_LOG_DIR/katta-das-nodes-$HOSTNAME.out
+
+
+mkdir -p "$KATTA_PID_DIR"
+
+cd "$KATTA_HOME"/bin
+
+if [ -f "$zkpid" ]; then
+  if kill -0 `cat "$zkpid"` > /dev/null 2>&1; then
+    echo "Zookeeper already running. Skipping."
+  else
+    rm "$KATTA_LOG_DIR"/katta-das-zk.host > /dev/null 2>&1  
+    rm -rf zookeeper-data zookeeper-log-data > /dev/null 2>&1
+    echo "logging zookeeper to $zklog"
+    nohup prun -1 -np 1 ./start-katta-zookeeper > "$zklog" 2>&1 < /dev/null &
+    echo $! > "$zkpid"
+    sleep 1; head "$zklog"
+  fi
+else
+  rm "$KATTA_LOG_DIR"/katta-das-zk.host > /dev/null 2>&1  
+    rm -rf zookeeper-data zookeeper-log-data > /dev/null 2>&1  
+  echo "logging zookeeper to $zklog"
+  nohup prun -1 -np 1 ./start-katta-zookeeper > "$zklog" 2>&1 < /dev/null &
+  echo $! > "$zkpid"
+  sleep 1; head "$zklog"
+fi
+
+while [ "z`cat $KATTA_LOG_DIR/katta-das-zk.host 2>/dev/null`" == "z" ]; do
+        echo "Waiting for Zookeeper to come online..."
+        sleep 5
+done
+
+echo "Katta nodes will connect to ZK on host `cat $KATTA_LOG_DIR/katta-das-zk.host`..."
+
+mv "$KATTA_CONF_DIR"/katta.zk.properties "$KATTA_CONF_DIR"/katta.zk.properties.old
+
+cat "$KATTA_CONF_DIR"/katta.zk.properties.old | grep -v "zookeeper.servers=" | grep -v "# Added by katta-das" > "$KATTA_CONF_DIR"/katta.zk.properties
+
+echo "# Added by katta-das" >> "$KATTA_CONF_DIR"/katta.zk.properties
+echo "zookeeper.servers=`cat ../logs/katta-das-zk.host`:2181" >> "$KATTA_CONF_DIR"/katta.zk.properties
+
+mv "$KATTA_CONF_DIR"/katta.node.properties "$KATTA_CONF_DIR"/katta.node.properties.old
+
+cat "$KATTA_CONF_DIR"/katta.node.properties.old | grep -v "node.shard.folder=" | grep -v "#Added by katta-das" > "$KATTA_CONF_DIR"/katta.node.properties
+
+echo "# Added by katta-das" >> "$KATTA_CONF_DIR"/katta.node.properties
+echo "node.shard.folder=/tmp/$USER/katta-shards" >> "$KATTA_CONF_DIR"/katta.node.properties
+
+
+
+
+if [ -f "$masterpid" ]; then
+  if kill -0 `cat "$masterpid"` > /dev/null 2>&1; then
+    echo "Master already running. Skipping."
+  else
+    echo "logging master to $masterlog"
+    nohup prun -1 -np 1 ./katta startMaster --config "$KATTA_CONF_DIR" > "$masterlog" 2>&1 < /dev/null &
+    echo $! > "$masterpid"
+    sleep 1; head "$masterlog"
+  fi
+else
+  echo "logging master to $masterlog"
+  nohup prun -1 -np 1 ./katta startMaster --config "$KATTA_CONF_DIR" > "$masterlog" 2>&1 < /dev/null &
+  echo $! > "$masterpid"
+  sleep 1; head "$masterlog"
+fi
+
+echo "Sleeping for 5 seconds before starting nodes..."
+
+sleep 5
+
+if [ -f "$nodespid" ]; then
+  if kill -0 `cat "$nodespid"` > /dev/null 2>&1; then
+    echo "Nodes already running. Skipping."
+  else
+    echo "logging nodes to $nodeslog"
+    nohup prun -1 -np $1 ./katta startNode --config "$KATTA_CONF_DIR" > "$nodeslog" 2>&1 < /dev/null &
+    echo $! > "$nodespid"
+    sleep 1; head "$nodeslog"
+  fi
+else
+  echo "logging nodes to $nodeslog"
+  nohup prun -1 -np $1 ./katta startNode --config "$KATTA_CONF_DIR" > "$nodeslog" 2>&1 < /dev/null &
+  echo $! > "$nodespid"
+  sleep 1; head "$nodeslog"
+fi
+
