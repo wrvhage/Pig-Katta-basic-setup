@@ -1,7 +1,8 @@
-register /Users/evertlammerts/workspace/commoncrawl-examples/lib/*.jar;                                                                                      
-register /Users/evertlammerts/opt/ccexamples.jar;
-a = LOAD '/data/public/common-crawl/parse-output/segment/1346823845675/1346864466526_10.arc.gz' USING org.commoncrawl.pig.ArcLoader() as (date, length, type, statuscode, ipaddress, url, html, payload);
-words = foreach a generate flatten(statuscode) as codes;                                                                                                                  
-grpd = group words by codes;                                                                                                                                              
-cntd = foreach grpd generate group, COUNT(words);                                                                                                                         
-dump cntd;
+register commoncrawl-examples/lib/*.jar;                                                                                      
+register commoncrawl-examples/dist/lib/commoncrawl-examples-1.0.1.jar
+a = LOAD 'commoncrawl/Common_Crawl_trial.arc.gz' USING org.commoncrawl.pig.ArcLoader() as (date, length, type, statuscode, ipaddress, url, html, payload);
+words = foreach a generate flatten(statuscode) as codes;
+grpd = group words by codes;
+cntd = foreach grpd generate group, COUNT(words);
+cntd10 = LIMIT cntd 10;
+dump cntd10;
