@@ -4,12 +4,23 @@ export SGE_KEEP_TMPFILES=no
 
 command -v prun >/dev/null 2>&1 || { echo >&2 "I require prun but it's not loaded. Load it first using 'module load prun'. Aborting."; exit 1; }
 
+if [ "q$1" = "q" ]; then
+  echo "Usage: launch-katta-cluster <num_nodes>"
+  exit 1;
+fi
+
+FREE=$(qstat -f | grep BIP | grep -v "d[^ ]*$" | grep "0/0/8" | wc -l)
+NEED=$(expr $1 + 2)
+
+if [ "$FREE" -lt "$NEED" ]; then
+  echo "I need $NEED nodes for that, but only $FREE are free at the moment..."
+  exit 1
+fi
+
 if [ "$KATTA_HOME" = "" ]; then
   bindir=`dirname "$0"`
   export KATTA_HOME=`readlink -f $bindir/..`
 fi
-
-
 
 command -v "$KATTA_HOME"/bin/katta >/dev/null 2>&1 || { echo >&2 "Unable to locate katta. Please put this script in your katta/modules/katta-core/bin directory. Aborting."; exit 1; }
 
