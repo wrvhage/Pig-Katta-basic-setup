@@ -84,18 +84,23 @@ if [ "$HOSTLIST" = "" ]; then
 fi
 
 for node in `cat "$HOSTLIST"`; do
- if test $START_NODE -gt 0; then
-     START_NODE=$(expr $START_NODE - 1)
- else
-     if test $NUM_NODES -gt 0; then
-         NUM_NODES=$(expr $NUM_NODES - 1)
-         ssh $KATTA_SSH_OPTS $node $params \
+echo node $START_NODE $NUM_NODES
+if test $START_NODE -gt 0; then
+    START_NODE=$(expr $START_NODE - 1)
+else
+    if test $NUM_NODES -gt 0; then
+        NUM_NODES=$(expr $NUM_NODES - 1)
+        if [ "$node" = "localhost" ]; then
+          bash -c "$params" &
+        else
+          ssh $KATTA_SSH_OPTS $node $params \
            2>&1 | sed "s/^/$node: /" &
-         if [ "$KATTA_NODE_SLEEP" != "" ]; then
-             sleep $KATTA_NODE_SLEEP
-         fi
-     fi
- fi
+        fi
+        if [ "$KATTA_NODE_SLEEP" != "" ]; then
+            sleep $KATTA_NODE_SLEEP
+        fi
+    fi
+fi
 done
 
 wait
