@@ -13,7 +13,7 @@ You can run it on the Hadoop cluster by loading the pig, hadoop, and java module
 following command *(NB! The index will end up on HDFS, not in your regular file system)*:
     
     module load hadoop java pig
-    pig INPUT='hdfs:/user/jehoekse/wikipedia' -p OUTPUT=wiki-index create_katta_index.pig
+    pig -p INPUT='hdfs:/user/jehoekse/wikipedia' -p OUTPUT=wiki-index create_katta_index.pig
 
 To set up a baseline Katta system locally, issue the following commands:
 
