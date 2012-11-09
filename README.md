@@ -48,7 +48,7 @@ The following example clones this repository, builds an index from the full wiki
     [jehoekse@fs0 ~]$ git clone https://github.com/wrvhage/Pig-Katta-basic-setup.git ir-setup
     [jehoekse@fs0 ~]$ cd ir-setup
     [jehoekse@fs0 ir-setup]$ module load hadoop java pig
-    [jehoekse@fs0 ir-setup]$ pig -p INPUT='hdfs:/user/jehoekse/wikipedia' -p OUTPUT=wiki-index create_katta_index.pig    
+    [jehoekse@fs0 ir-setup]$ pig -p INPUT='hdfs:/user/jehoekse/wikipedia/chunk-0200.xml' -p OUTPUT=wiki-index create_katta_index.pig    
     [jehoekse@fs0 ir-setup]$ cd katta/modules/katta-core
     [jehoekse@fs0 katta-core]$ bin/launch-katta-cluster 10
     [jehoekse@fs0 katta-core]$ bin/katta addIndex wiki hdfs://10.141.0.254:8115/user/jehoekse/wiki-index 1
