@@ -75,3 +75,18 @@ You can adapt the entire information retrieval process by changing the following
 * Query field weighting etc (e.g. incorporate PageRank effect):
     * Just adapt the query, details can be found on the Lucene web page. http://lucene.apache.org/core/old_versioned_docs/versions/3_5_0/queryparsersyntax.html
 
+
+## Evaluation
+
+In the *katta/modules/katta-core* directory you will find a file called *testbed.csv* containing a set of quries and relevant documents based on the assessments done in assignment 1 of the IR course. You can use this testbed to do benchmarking on the Wikipedia corpus.
+You can run the testbed by calling:
+
+    cd katta/modules/katta-core
+    # launch a katta cluster and add your index
+    ruby bin/testbed.rb
+    # remove your index and stop your katta cluster
+
+This will fire all the queries and calculate some performance metrics like Average Precision and F-measure over all queries to guide your development process. You may add to the testbed as you like.
+The testbed does not include and Wikipedia pages about Categories, Talk, or Files (e.g. images). You might want to filter these from your search results or index.
+If you want to use your own wrapper around Katta, for example, to rewrite queries before firing them, you can change the testbed.rb Ruby script near the top of the script to call your wrapper.
+
