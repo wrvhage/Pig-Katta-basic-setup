@@ -87,6 +87,9 @@ You can run the testbed by calling:
     # remove your index and stop your katta cluster
 
 This will fire all the queries and calculate some performance metrics like Average Precision and F-measure over all queries to guide your development process. You may add to the testbed as you like.
-The testbed does not include and Wikipedia pages about Categories, Talk, or Files (e.g. images). You might want to filter these from your search results or index.
+The testbed sets of relevant documents currently do not include Wikipedia pages about Categories, Talk, or Files (e.g. images). You might want to filter these from your search results or index. This can be accomplished in Pig, or by rewriting the queries by appending
+
+     AND NOT uri:*File* AND NOT uri:*Talk* AND NOT uri:*Category*
+
 If you want to use your own wrapper around Katta, for example, to rewrite queries before firing them, you can change the testbed.rb Ruby script near the top of the script to call your wrapper.
 
