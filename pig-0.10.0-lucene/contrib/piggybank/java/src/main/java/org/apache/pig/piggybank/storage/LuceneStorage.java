@@ -90,7 +90,7 @@ public class LuceneStorage implements StoreFuncInterface {
 		for (int i = 0; i < size; i++) {
 			Object field = tuple.get(i);
 			String fieldName = fieldNames.get(i);
-			Field toAdd = new Field(fieldName, field.toString(), Store.YES, Index.ANALYZED);
+			Field toAdd = new Field(fieldName, field.toString(), Store.YES, Index.ANALYZED, Field.TermVector.YES);
 			doc.add(toAdd);
 			// log.info("Adding field " + fieldName + " to doc " + doc + ": " + field.toString() );
 		}

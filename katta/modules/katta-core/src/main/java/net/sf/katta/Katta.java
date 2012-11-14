@@ -72,6 +72,7 @@ import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
@@ -824,7 +825,7 @@ public class Katta {
 
     void search(final String[] indexNames, final String queryString, final int count) throws Exception {
       final ILuceneClient client = new LuceneClient();
-      final Query query = new QueryParser(Version.LUCENE_35, "", new KeywordAnalyzer()).parse(queryString);
+      final Query query = new QueryParser(Version.LUCENE_35, "", new StandardAnalyzer(Version.LUCENE_35)).parse(queryString);
       final long start = System.currentTimeMillis();
       final Hits hits = client.search(query, indexNames, count);
       final long end = System.currentTimeMillis();
@@ -851,7 +852,7 @@ public class Katta {
 
     void search(final String[] indexNames, final String queryString) throws Exception {
       final ILuceneClient client = new LuceneClient();
-      final Query query = new QueryParser(Version.LUCENE_35, "", new KeywordAnalyzer()).parse(queryString);
+      final Query query = new QueryParser(Version.LUCENE_35, "", new StandardAnalyzer(Version.LUCENE_35)).parse(queryString);
       final long start = System.currentTimeMillis();
       final int hitsSize = client.count(query, indexNames);
       final long end = System.currentTimeMillis();

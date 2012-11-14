@@ -235,11 +235,11 @@ public class Node implements ConnectedComponent {
         throw new RuntimeException("unable to create rpc server", e);
       }
     }
-    try {
+    //try {
       _rpcServer.start();
-    } catch (final IOException e) {
-      throw new RuntimeException("failed to start rpc server", e);
-    }
+    //} catch (final IOException e) {
+    //  throw new RuntimeException("failed to start rpc server", e);
+    //}
     return _rpcServer;
   }
 
