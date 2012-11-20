@@ -1,0 +1,3 @@
+[submodule "commoncrawl-examples"]
+	path = commoncrawl-examples
+	url = git://github.com/norvigaward/commoncrawl-examples.git
