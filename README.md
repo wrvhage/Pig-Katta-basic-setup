@@ -1,5 +1,8 @@
 # Basic starting setup for the Information Retrieval course at the VU University Amsterdam
 This repository contains everything needed to set up a local or distributed search engine over the Engish Wikipedia using Hadoop, Pig, Lucene and Katta. Tools for CommonCrawl are also included.
+If you want to download the CommonCrawl ARC file loader submodule you have to invoke git like this:
+
+    git clone --recursive https://github.com/wrvhage/Pig-Katta-basic-setup.git
 
 ## Build a basic index and serve it using Katta
 
