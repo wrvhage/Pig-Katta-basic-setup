@@ -18,6 +18,8 @@ following command *(NB! The index will end up on HDFS, not in your regular file 
     module load hadoop java pig
     pig -p INPUT='hdfs:/user/jehoekse/wikipedia/chunk-0200.xml' -p OUTPUT=wiki-index create_katta_index.pig
 
+If you want to run CommonCrawl code on the DAS cluster, you have to use the module "java/jdk-1.6.0_27" instead of "java", because this will load java 1.6.0, which is required by the CommonCrawl code, instead of the default 1.7.0.
+
 To set up a baseline Katta system locally, issue the following commands:
 
     cd katta/modules/katta-core
@@ -68,7 +70,7 @@ You can adapt the entire information retrieval process by changing the following
 * Tokenization etc: 
     * pig-0.10.0-lucene/contrib/piggybank/java/src/main/java/org/apache/pig/piggybank/storage/LuceneStorage.java
 
-* Query preprocessingi (e.g. expansion, fuzzy matching):
+* Query preprocessing (e.g. expansion, fuzzy matching):
     * katta/modules/katta-core/src/main/java/net/sf/katta/Katta.java (around line 827)
 
 * Weighting scheme:
