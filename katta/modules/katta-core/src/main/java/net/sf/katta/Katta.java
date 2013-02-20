@@ -832,11 +832,12 @@ public class Katta {
       System.out.println(hits.size() + " hits found in " + ((end - start) / 1000.0) + "sec.");
       String[] fields = new String[1];
       fields[0] = "uri";
-      final List<MapWritable> uris = client.getDetails(hits.getHits(),fields);
+      final List<MapWritable> uris = client.getDetails(hits.getHits());
       // System.out.println(uris.toString());
-      // for (final MapWritable x: uris) {
+      for (final MapWritable x: uris) {
       //   System.out.println( ((Text)x.get(new Text("uri"))) );
-      // }
+         System.out.println(((MapWritable) x.get(new Text("text_freqs"))).entrySet());
+      }
 
 
       int index = 0;

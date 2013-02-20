@@ -47,14 +47,16 @@ import net.sf.katta.util.WritableType;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.MapFieldSelector;
 import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.CachingWrapperFilter;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.DefaultSimilarity;
@@ -390,6 +392,10 @@ public class LuceneServer implements IContentServer, ILuceneServer {
 
   @Override
   public MapWritable getDetails(final String[] shards, final int docId, final String[] fieldNames) throws IOException {
+    final SearcherHandle handle = getSearcherHandleByShard(shards[0]);
+    IndexSearcher searcher = handle.getSearcher();
+    IndexReader ir = searcher.getIndexReader();
+
     final MapWritable result = new MapWritable();
     final Document doc = doc(shards[0], docId, fieldNames);
     final List<Fieldable> fields = doc.getFields();
@@ -402,6 +408,15 @@ public class LuceneServer implements IContentServer, ILuceneServer {
         final String stringValue = field.stringValue();
         result.put(new Text(name), new Text(stringValue));
       }
+
+      TermFreqVector tfv = ir.getTermFreqVector(docId, name);
+      String terms[] = tfv.getTerms();
+      int freqs[] = tfv.getTermFrequencies();
+      MapWritable returnTerms = new MapWritable();
+      for (int t=0; t < tfv.size(); t++) {
+        returnTerms.put(new Text(terms[t]), new IntWritable(freqs[t]));
+      }
+      result.put(new Text(name + "_freqs"),returnTerms);
     }
     return result;
   }
